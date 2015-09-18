@@ -3,11 +3,14 @@ from urllib.request import urlopen
 from datetime import datetime
 import re
 from crawler import *
+import json
 
 totals_labels = ["Season", "Age", "Tm", "Lg", "Pos", "G", "GS", "MP", "FG", "FGA", "FG%", "3P", "3P%", "2P", "2PA", "2P%", "eFG%", "FT", "FTA", "FT%", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS"]
 advanced_labels = totals_labels[0:5] + ["G", "MP", "PER", "TS%", "3PAr", "FTr", "ORB%", "DRB%", "TRB%", "AST%", "STL%", "BLK%", "TOV%", "USG%", "__", "OWS", "DWS", "WS", "WS/48", "__", "OBPM", "DBPM", "BPM", "VORP"]
-print(len(advanced_labels))
-print(len(["PER", "TS%", "3PAr", "FTr", "ORB%", "DRB%", "TRB%", "AST%", "STL%", "BLK%", "TOV%", "USG%", "__", "OWS", "DWS", "WS", "WS/48", "__", "OBPM", "DBPM", "BPM", "VORP"]))
+poss_labels = totals_labels + ["","ORtg", "DRtg"]
+shooting_labels = advanced_labels[0:7] + ["FG%", "Dist", "FGA_2P", "FGA_0-3","FGA_10-16", "FGA_16<3", "3P", "FG_2P","FG_0-3","FG_3-10","FG_10-16","FG_16<3","3P","DunksAstd", "DunksPer", "DunksMd", "CornerAstd", "Corner3A", "Corner3P", "HeavesAtt", "HeavesMd"]
+
+
 class Player:
 
 	def __init__(self, url):
@@ -19,12 +22,9 @@ class Player:
 			
 		self.draftYear = self.soup.find_all(string=re.compile("[0-9]+ NBA Draft"))[0][0:4]
 		
-		self.totals_labels = ["Season", "Age", "Tm", "Lg", "Pos", "G", "GS", "MP", "FG", "FGA", "FG%", "3P", "3P%", "2P", "2PA", "2P%", "eFG%", "FT", "FTA", "FT%", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS"]
-		self.poss_labels = self.totals_labels + ["","ORtg", "DRtg"]
-		self.advanced_labels = self.totals_labels[0:5] + ["PER", "TS%", "3PAr", "FTr", "ORB%", "DRB%", "TRB%", "AST%", "STL%", "BLK%", "TOV%", "USG%", "", "OWS", "DWS", "WS", "WS/48", "", "OBPM", "DBPM", "BPM", "VORP"]
-
+	
 	def getTotals(self, tableName):
-		#tableName = "totals", "per_minute", "per_game", "per_poss", "advanced"
+		#tableName = "totals", "per_minute", "per_game", "per_poss", "advanced", "shooting"
 		totals_table = []
 		for i in range(int(self.draftYear)+1,int(self.curryear)+1):
 			total = {}
@@ -33,14 +33,16 @@ class Player:
 			table_data = year.find_all('td')
 
 			if tableName == 'per_poss':
-				labels = self.poss_labels
+				labels = poss_labels
 			elif tableName == 'advanced':
 				labels = advanced_labels
+			elif tableName == 'shooting':
+				labels = shooting_labels
 			else:
-				labels = self.totals_labels
+				labels = totals_labels
 
-			print(table_data)
-			print(len(labels))
+			#print(table_data)
+			#print(len(labels))
 			for j in range(0,len(labels)):
 				if j == 0 or j == 2 or j == 3:
 					total[labels[j]] = table_data[j].find('a').contents[0]
@@ -58,6 +60,27 @@ class Player:
 
 		return totals_table
 
+def writeTSV(table, tableName, fileName):
+	FILEOUT = open(fileName+".json", 'w+')
+	
+	if tableName == 'per_poss':
+		labels = poss_labels
+	elif tableName == 'advanced':
+		labels = advanced_labels
+	elif tableName == 'shooting':
+		labels = shooting_labels
+	else:
+		labels = totals_labels
+
+	FILEOUT.write('[')
+	for year in table:
+		#for keys in labels:
+		#	FILEOUT.write(keys +'\t' + year[keys]+'\n')
+		json.dump(year,FILEOUT)
+		FILEOUT.write(',')
+		FILEOUT.write('\n')
+	FILEOUT.write(']')
+			
 
 		
 
@@ -66,7 +89,8 @@ def main():
 	russelWestbrook = Player("http://www.basketball-reference.com/players/w/westbru01.html")
 	#russelWestbrook.getTotals("per_minute")
 	stephenCurry = Player("http://www.basketball-reference.com/players/c/curryst01.html")
-	print(stephenCurry.getTotals("advanced"))
+	shooting = stephenCurry.getTotals("shooting")
+	writeTSV(shooting, "shooting", "curry_shooting")
 
 
 

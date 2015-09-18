@@ -1,0 +1,34 @@
+<div class="chart"></div>
+<script src="http://d3js.org/d3.v3.min.js"  charset="utf-8"></script>
+<script type="text/javascript" src="../curry_shooting.json"></script>
+<script>
+	var data = [4, 8, 15, 16, 23, 42];
+
+var x = d3.scale.linear()
+    .domain([0, d3.max(data)])
+    .range([0, 420]);
+
+d3.select(".chart")
+  .selectAll("div")
+    .data(data)
+  .enter().append("div")
+    .style("width", function(d) { return x(d) + "px"; })
+    .text(function(d) { return d; });
+
+var curry = '[{"Corner3P": ".179", "Dist": "16.5", "Age": "21", "DunksMd": ".000", "FGA_10-16": ".074", "MP": "2896", "FG%": ".462", "FG_16<3": ".388", "HeavesAtt": ".574", "Pos": "PG", "FG_0-3": ".474", "DunksPer": ".307", "FGA_0-3": ".190", "Lg": "NBA", "FGA_16<3": ".113", "FG_10-16": ".376", "FGA_2P": ".668", "Corner3A": ".741", "G": "80", "FG_3-10": ".599", "3P": ".452", "Season": "2009-10", "FG_2P": ".332", "HeavesMd": "6", "DunksAstd": ".437", "Tm": "GSW", "CornerAstd": "0"},{"Corner3P": ".240", "Dist": "16.2", "Age": "22", "DunksMd": ".004", "FGA_10-16": ".117", "MP": "2489", "FG%": ".480", "FG_16<3": ".383", "HeavesAtt": ".549", "Pos": "PG", "FG_0-3": ".498", "DunksPer": ".257", "FGA_0-3": ".169", "Lg": "NBA", "FGA_16<3": ".109", "FG_10-16": ".439", "FGA_2P": ".675", "Corner3A": ".801", "G": "74", "FG_3-10": ".618", "3P": ".495", "Season": "2010-11", "FG_2P": ".325", "HeavesMd": "4", "DunksAstd": ".442", "Tm": "GSW", "CornerAstd": "3"}]'
+
+
+alert(JSON.parse(curry))
+
+</script>
+<style>
+.chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+}
+
+</style>
