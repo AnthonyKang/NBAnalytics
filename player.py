@@ -60,6 +60,33 @@ class Player:
 
 		return totals_table
 
+	def getGameLog(self, year):
+
+		print(self.url[:-5])
+		html = urlopen(self.url[:-5] + '/gamelog/' + str(year) + '/')
+		soup = BeautifulSoup(html, 'lxml')
+		table = soup.find(id='pgl_basic')
+		header_tags = table.find_all('th')
+		headers = []
+		for th in header_tags[0:31]:
+			headers.append(th.get_text())
+		headers[5] = 'away'
+		headers[7] = 'W/L'
+
+		games = []
+		stats = []
+		for game in table.find_all(id=re.compile('pgl_basic.[0-9]+')):
+			for stat in game.find_all('td'):
+				stats.append(stat.get_text())
+			games.append(tuple(stats))
+			stats = []
+
+		print(games)
+
+		#game = table.find(id=re.compile('pgl_basic.[0-9]+'))
+		#stat = game.find_all('td')
+		#print(stat)
+
 def writeTSV(table, tableName, fileName):
 	FILEOUT = open(fileName+".json", 'w+')
 	
@@ -86,12 +113,12 @@ def writeTSV(table, tableName, fileName):
 
 
 def main():
-	russelWestbrook = Player("http://www.basketball-reference.com/players/w/westbru01.html")
+	#russelWestbrook = Player("http://www.basketball-reference.com/players/w/westbru01.html")
 	#russelWestbrook.getTotals("per_minute")
 	stephenCurry = Player("http://www.basketball-reference.com/players/c/curryst01.html")
-	shooting = stephenCurry.getTotals("shooting")
-	writeTSV(shooting, "shooting", "curry_shooting")
-
+	#shooting = stephenCurry.getTotals("shooting")
+	#writeTSV(shooting, "shooting", "curry_shooting")
+	stephenCurry.getGameLog(2016)
 
 
 if __name__ == "__main__":
