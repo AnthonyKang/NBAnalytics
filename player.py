@@ -18,8 +18,8 @@ class Player:
 		self.url = url
 		self.html = urlopen(self.url).read()
 		self.soup = BeautifulSoup(self.html, "lxml")
-		self.curryear = datetime.now().year
-			
+		self.currYear = datetime.now().year
+		self.playerName = self.soup.find_all('h1')[0].string
 		self.draftYear = self.soup.find_all(string=re.compile("[0-9]+ NBA Draft"))[0][0:4]
 		
 	
@@ -64,6 +64,7 @@ class Player:
 
 		print(self.url[:-5])
 		html = urlopen(self.url[:-5] + '/gamelog/' + str(year) + '/')
+		print(self.url[:-5] + '/gamelog/' + str(year) + '/')
 		soup = BeautifulSoup(html, 'lxml')
 		table = soup.find(id='pgl_basic')
 		header_tags = table.find_all('th')
@@ -81,8 +82,7 @@ class Player:
 			games.append(tuple(stats))
 			stats = []
 
-		print(games)
-
+		return (headers, games)
 		#game = table.find(id=re.compile('pgl_basic.[0-9]+'))
 		#stat = game.find_all('td')
 		#print(stat)
@@ -118,8 +118,9 @@ def main():
 	stephenCurry = Player("http://www.basketball-reference.com/players/c/curryst01.html")
 	#shooting = stephenCurry.getTotals("shooting")
 	#writeTSV(shooting, "shooting", "curry_shooting")
-	stephenCurry.getGameLog(2016)
-
+	headers, games = stephenCurry.getGameLog(2015)
+	print(stephenCurry.playerName)
+	print(len(games))
 
 if __name__ == "__main__":
 	main()
